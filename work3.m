@@ -446,7 +446,11 @@ Iy=sum(Iy_rectangle+Iy_circle+Iy_circlering+Iy_triangle);
 Ixy=sum(Ixy_rectangle+Ixy_circle+Ixy_circlering+Ixy_triangle);
 Ix0=(Ix+Iy)/2+0.5*sqrt((Iy-Ix)^2+4*Ixy^2);
 Iy0=(Ix+Iy)/2-0.5*sqrt((Iy-Ix)^2+4*Ixy^2);
-alpha=0.5*atan(-2*Ixy/(Ix-Iy));
+if Ix==Iy
+    alpha=pi/4;
+else
+    alpha=0.5*atan(-2*Ixy/(Ix-Iy));
+end
 alpha2=alpha+pi/2;
 xxx=0:0.01:1000;
 xxxx=0:0.01:1000;
