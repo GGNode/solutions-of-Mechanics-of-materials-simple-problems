@@ -221,6 +221,7 @@ if situation~=0
 end
 situation=3;
 [FileName,PathName,FilterIndex] = uigetfile('*.mp3;*.wav;*.wmv','«Î—°‘Ò“Ù¿÷');
+addpath (PathName);
 [y,Fs] = audioread(FileName);
 p=audioplayer(y,Fs);
 play(p);

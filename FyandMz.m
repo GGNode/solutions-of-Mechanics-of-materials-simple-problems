@@ -208,6 +208,10 @@ prompt={'请输入杨氏模量大小（GPa):'};%输入窗口命令行开始
      return;                                                               %确保取消不报错
  end
 E = str2double(xyz{1})*10e9;                                                     %获取数值。若为非法输入即得NaN输出
+axes(handles.shearforcediagram)
+cla reset
+axes(handles.bendingmonentdiagram)
+cla reset
 %以下为正式运算
 
 L=LOC2-LOC1;
@@ -281,12 +285,12 @@ x=x+LOC1;
         dd=[0,d];
         plot(cc,dd,'k','linewidth',1.5);
     end
-    zz=find(Fsy(1,:)==max(abs(Fsy(1,:))));
+    zz=find(abs(Fsy(1,:)-max(abs(Fsy(1,:))))<1e-5);
     if ~isempty(zz)
       zz=zz(1);
     end
 
-    zzz=find(Fsy(1,:)==-max(abs(Fsy(1,:))));
+    zzz=find(abs(Fsy(1,:)+max(abs(Fsy(1,:))))<1e-5);
    if ~isempty(zzz)
       zzz=zzz(1);
     end
@@ -316,12 +320,12 @@ end
         c=x(a);d=Mz(1,b);cc=[c,c];dd=[0,d];
         plot(cc,dd,'k','linewidth',1.5);
     end
-zz=find(Mz(1,:)==max(abs(Mz(1,:))));
+zz=find(abs(Mz(1,:)-max(abs(Mz(1,:))))<1e-6);
     if ~isempty(zz)
       zz=zz(1);
     end
 
-    zzz=find(Mz(1,:)==-max(abs(Mz(1,:))));
+    zzz=find(abs(Mz(1,:)+max(abs(Mz(1,:))))<1e-6);
    if ~isempty(zzz)
       zzz=zzz(1);
     end
@@ -342,8 +346,8 @@ end
     vv=v*10^(abs(beishu));
     plot(x,vv+5.00,'linewidth',2);
     hold on
-    pp=find(v==max(abs(v)));
-    ppp=find(v==-max(abs(v)));
+    pp=find(abs(v-max(abs(v)))<1e-6);
+    ppp=find(abs(v+max(abs(v)))<1e-6);
 
 if isempty(pp)
     pp=0;
@@ -354,7 +358,7 @@ end
 xmax=pp+ppp;
 xxmax=Fsy(2,xmax);
 if v(xmax)~=0
-    text(xxmax,4.75,strcat(num2str(v(xmax)*10^2),'mm'));
+    text(xxmax,v(xmax)*10^(abs(beishu))+5.00,strcat(num2str(v(xmax)*10^2),'mm'));
 end
 
     %axis equal
@@ -432,6 +436,7 @@ handles.I=I;
     set(handles.value_v,'string','');
     set(handles.value_mz,'string','');
     set(handles.value_fsy,'string','');
+    set(handles.xloc,'string','');
 guidata(hObject, handles);
 % --------------------------------------------------------------------
 function help_Callback(hObject, eventdata, handles)
@@ -1531,7 +1536,7 @@ if (~((xvalue>=LOC1)&&(xvalue<=LOC2)))||(isnan(xvalue))
     return;
 else
     xvalue=roundn(xvalue,-2);
-    aa=find(Mz2(2,:)==xvalue);
+    aa=find(abs(Mz2(2,:)-xvalue)<1e-7);
     qq=strcat('挠度：',num2str(v(1,aa).*100),'mm');
     qqq=strcat('剪力:',num2str(Fsy2(1,aa)/1000),'KN');
     qqqq=strcat('弯矩:',num2str(Mz2(1,aa)/1000),'KN.m');
@@ -1563,7 +1568,7 @@ elseif xx>LOC2
     xx=LOC2;
 end
 xx=roundn(xx,-2);
-    aa=find(Mz2(2,:)==xx);
+    aa=find(abs(Mz2(2,:)-xx)<1e-7);
     qq=strcat('挠度：',num2str(v(1,aa).*100),'mm');
     qqq=strcat('剪力:',num2str(Fsy2(1,aa)/1000),'KN');
     qqqq=strcat('弯矩:',num2str(Mz2(1,aa)/1000),'KN.m');
