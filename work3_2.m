@@ -390,29 +390,31 @@ end
 %矩形惯性矩，惯性积
 Ixc_rectangle=rectanglecount(:,3).*(rectanglecount(:,4).^3)./12;
 Iyc_rectangle=rectanglecount(:,4).*(rectanglecount(:,3).^3)./12;
-Ix_rectangle=Ixc_rectangle+((LOCrec(:,2)-Yc).^2).*Srec;
-Iy_rectangle=Iyc_rectangle+((LOCrec(:,1)-Xc).^2).*Srec;
-Ixy_rectangle=(LOCrec(:,1)-Xc).*(LOCrec(:,2)-Yc).*Srec;
+Ix_rectangle=Ixc_rectangle+((LOCrec(:,2)).^2).*Srec;
+Iy_rectangle=Iyc_rectangle+((LOCrec(:,1)).^2).*Srec;
+Ixy_rectangle=(LOCrec(:,1)).*(LOCrec(:,2)).*Srec;
 %圆形惯性矩，惯性积
 Ixc_circle=((0.5*circlecount(:,3)).^4).*pi./4;
 Iyc_circle=((0.5*circlecount(:,3)).^4).*pi./4;
-Ix_circle=Ixc_circle+((LOCrec(:,2)-Yc).^2).*Scir;
-Iy_circle=Iyc_circle+((LOCrec(:,1)-Xc).^2).*Scir;
-Ixy_circle=(LOCrec(:,1)-Xc).*(LOCrec(:,2)-Yc).*Scir;
+Ix_circle=Ixc_circle+((LOCcir(:,2)).^2).*Scir;
+Iy_circle=Iyc_circle+((LOCcir(:,1)).^2).*Scir;
+Ixy_circle=(LOCcir(:,1)).*(LOCcir(:,2)).*Scir;
 %圆环惯性矩，惯性积
 Ixc_circlering=(circleringcount(:,3).^4-circleringcount(:,4).^4).*pi./4;
 Iyc_circlering=(circleringcount(:,3).^4-circleringcount(:,4).^4).*pi./4;
-Ix_circlering=Ixc_circlering+((LOCrec(:,1)-Yc).^2).*Scr;
-Iy_circlering=Iyc_circlering+((LOCrec(:,1)-Xc).^2).*Scr;
-Ixy_circlering=(LOCrec(:,1)-Xc).*(LOCrec(:,2)-Yc).*Scr;
+Ix_circlering=Ixc_circlering+((LOCcr(:,1)).^2).*Scr;
+Iy_circlering=Iyc_circlering+((LOCcr(:,1)).^2).*Scr;
+Ixy_circlering=(LOCcr(:,1)).*(LOCcr(:,2)).*Scr;
 %三角形惯性矩，惯性积
 for ii=1:length(Stri)
     lenthofside(ii,1)=sqrt((trianglecount(ii,3)-trianglecount(ii,1))^2+(trianglecount(ii,4)-trianglecount(ii,2))^2);
     lenthofside(ii,2)=sqrt((trianglecount(ii,5)-trianglecount(ii,1))^2+(trianglecount(ii,6)-trianglecount(ii,2))^2);
     lenthofside(ii,3)=sqrt((trianglecount(ii,3)-trianglecount(ii,5))^2+(trianglecount(ii,4)-trianglecount(ii,6))^2);
+    sortmartrix(ii,:)=sort([trianglecount(ii,1),trianglecount(ii,3),trianglecount(ii,5)]);
     b(ii,1)=max(lenthofside(ii,:));
-    c(ii,1)=min(lenthofside(ii,:));
+%    c(ii,1)=min(lenthofside(ii,:));
     h(ii,1)=2.*Stri(ii,1)./b(ii,1);
+    c(ii,1)=sortmartrix(ii,3)-sortmartrix(ii,2);
 end
 %判断上翻还是下翻
 fan=[];
@@ -434,13 +436,13 @@ for ii=1:length(Stri)
     if fan(ii)==1
         Ixcyc_triangle(ii,1)=(b(ii,1)-2.*c(ii,1)).*b(ii,1).*(h(ii,1).^2)./72;
     elseif fan(ii==-1)
-        Ixcyc_triangle(ii,1)=-7*(b(ii,1)-2.*c(ii,1)).*b(ii,1).*(h(ii,1).^2)./72;
+        Ixcyc_triangle(ii,1)=(b(ii,1)-2.*c(ii,1)).*b(ii,1).*(h(ii,1).^2)./72;
     end
 end
 
-Ix_triangle=Ixc_triangle+((LOCrec(:,1)-Yc).^2).*Stri;
-Iy_triangle=Iyc_triangle+((LOCrec(:,1)-Xc).^2).*Stri;
-Ixy_triangle=Ixcyc_triangle+(LOCrec(:,1)-Xc).*(LOCrec(:,2)-Yc).*Stri;
+Ix_triangle=Ixc_triangle+((LOCtri(:,2)).^2).*Stri;
+Iy_triangle=Iyc_triangle+((LOCtri(:,1)).^2).*Stri;
+Ixy_triangle=Ixcyc_triangle+(LOCtri(:,1)).*(LOCtri(:,2)).*Stri;
 if isnan(Ixc_triangle)
     Ixc_triangle=[0];
 end
@@ -574,7 +576,7 @@ trianglecount = handles.trianglecount;                                         %
 prompt={'第一个点的x值（只能输入最长边平行于横轴的三角形）','请输入第一个点的y值','请输入第二个点的x值','请输入第二个点的y值','请输入第三个点的x值','请输入第三个点的y值'};                       %输入窗口命令行开始
    name='请输入参数';
    numlines=1;
-   defaultanswer={'100','100','150','200','400','100'};
+   defaultanswer={'0','700','800','700','400','900'};
  options.Resize='on';
    options.WindowStyle='normal';
    options.Interpreter='tex';
