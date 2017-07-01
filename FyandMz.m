@@ -277,20 +277,20 @@ x=x+LOC1;
     set(gca,'YLim',[-max(abs(min(Fsy)-abs(min(Fsy)).*0.75-10),abs(max(Fsy)+abs(max(Fsy)).*0.75+10)),max(abs(min(Fsy)-abs(min(Fsy)).*0.75-10),abs(max(Fsy)+abs(max(Fsy)).*0.75+10))]);
     Fsy(2,:)=LOC1:0.01:LOC2;
     for ii =x(1):0.5:x(end)
-        a=find(abs(x-ii)<1e-5);
-        b=find(abs(Fsy(2,:)-ii)<1e-5);
+        a=find(abs(x-ii)<realmin);
+        b=find(abs(Fsy(2,:)-ii)<realmin);
         c=x(a);
         d=Fsy(1,b);
         cc=[c,c];
         dd=[0,d];
         plot(cc,dd,'k','linewidth',1.5);
     end
-    zz=find(abs(Fsy(1,:)-max(abs(Fsy(1,:))))<1e-5);
+    zz=find(abs(Fsy(1,:)-max(abs(Fsy(1,:))))<realmin);
     if ~isempty(zz)
       zz=zz(1);
     end
 
-    zzz=find(abs(Fsy(1,:)+max(abs(Fsy(1,:))))<1e-5);
+    zzz=find(abs(Fsy(1,:)+max(abs(Fsy(1,:))))<realmin);
    if ~isempty(zzz)
       zzz=zzz(1);
     end
@@ -314,21 +314,24 @@ end
     set(gca,'YLim',[-max(abs(min(Mz)-abs(min(Mz)).*0.75-10),abs(max(Mz)+abs(max(Mz)).*0.75+10)),max(abs(min(Mz)-abs(min(Mz)).*0.75-10),abs(max(Mz)+abs(max(Mz)).*0.75+10))]);
     Mz(2,:)=LOC1:0.01:LOC2;
     for ii =x(1):0.5:x(end)
-        a=find(abs(x-ii)<1e-5);
-        b=find(abs(Mz(2,:)-ii)<1e-5);
+        a=find(abs(x-ii)<realmin);
+        b=find(abs(Mz(2,:)-ii)<realmin);
         a=double(a);
         c=x(a);d=Mz(1,b);cc=[c,c];dd=[0,d];
         plot(cc,dd,'k','linewidth',1.5);
     end
-zz=find(abs(Mz(1,:)-max(abs(Mz(1,:))))<1e-6);
+zz=find(abs(Mz(1,:)-max(abs(Mz(1,:))))<realmin);
     if ~isempty(zz)
       zz=zz(1);
     end
 
-    zzz=find(abs(Mz(1,:)+max(abs(Mz(1,:))))<1e-6);
+    zzz=find(abs(Mz(1,:)+max(abs(Mz(1,:))))<realmin);
    if ~isempty(zzz)
       zzz=zzz(1);
-    end
+   end
+if max(abs(Mz))==0
+    zz=0;zzz=0;
+end
 if isempty(zz)
     zz=0;
 end
@@ -336,19 +339,36 @@ if isempty(zzz)
     zzz=0;
 end
 zmax=zz+zzz;
+if zmax==0
+    zmax=1;
+end
 zzmax=Mz(2,zmax);
 if v(zmax)~=0
     text(zzmax,Mz(1,zmax),strcat(num2str(Mz(1,zmax)/1000),'KN.m'));
 end
    % axis equal
     axes(handles.moudel)
-    beishu=round(log10(max(abs(max(v)),abs(min(v)))));
-    vv=v*10^(abs(beishu));
+    beishu=(log10(max(abs(max(v)),abs(min(v)))));
+    vv=(v*10^(0.4+abs(beishu)));
+   % vv=(vv*(abs(beishu)./2))/2;
+%    vv=v*1/abs(beishu);
+% vv=zeros(size(v));
+% [~,sizev]=size(v);
+% for ii=1:sizev
+%     if v(ii)>0
+%         vv(ii)=-1/log10(v(ii));
+%     elseif v(ii)<0
+%         vv(ii)=1/log10(-v(ii));
+%     end
+% end
     plot(x,vv+5.00,'linewidth',2);
     hold on
-    pp=find(abs(v-max(abs(v)))<1e-6);
-    ppp=find(abs(v+max(abs(v)))<1e-6);
-
+    if max(abs(v))==0
+        pp=0;ppp=0;
+    else
+        pp=find(abs(v-max(abs(v)))<realmin);
+        ppp=find(abs(v+max(abs(v)))<realmin);
+    end
 if isempty(pp)
     pp=0;
 end
@@ -356,9 +376,13 @@ if isempty(ppp)
     ppp=0;
 end
 xmax=pp+ppp;
+if xmax==0;
+    xmax=100;
+end
 xxmax=Fsy(2,xmax);
 if v(xmax)~=0
-    text(xxmax,v(xmax)*10^(abs(beishu))+5.00,strcat(num2str(v(xmax)*10^2),'mm'));
+   %text(xxmax,v(xmax)*10^(0.1+abs(beishu))+5.00,strcat(num2str(v(xmax)*10^2),'mm'));
+   text(xxmax,vv(xmax)+5.00,strcat(num2str(v(xmax)*10^2),'mm'));
 end
 
     %axis equal
@@ -385,11 +409,18 @@ function resetalldata_Callback(hObject, eventdata, handles)
 % hObject    handle to resetalldata (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-cla reset
 axes(handles.moudel)
+cla reset
 grid on
 set(gca,'XLim',[0,10]);
 set(gca,'YLim',[0,10]);
+axes(handles.shearforcediagram)
+cla reset
+grid on
+axes(handles.bendingmonentdiagram)
+cla reset
+grid on
+
 axes(handles.shearforcediagram)
 cla reset
 grid on
@@ -1035,7 +1066,7 @@ end
 prompt={'请输入力的大小(KN):','请输入力的作用点(m):'};%输入窗口命令行开始
    name='请输入参数';
    numlines=1;
-   defaultanswer={'30','6'};
+   defaultanswer={'30','2.5'};
  options.Resize='on';
    options.WindowStyle='normal';
    options.Interpreter='tex';
@@ -1102,7 +1133,7 @@ end
 prompt={'请输入力的大小(KN):','请输入力的作用点(m):'};%输入窗口命令行开始
    name='请输入参数';
    numlines=1;
-   defaultanswer={'30','6'};
+   defaultanswer={'30','2'};
  options.Resize='on';
    options.WindowStyle='normal';
    options.Interpreter='tex';
@@ -1168,7 +1199,7 @@ end
 prompt={'请输入力偶的大小(KN.m):','请输入力偶的作用点(m):'};%输入窗口命令行开始
    name='请输入参数';
    numlines=1;
-   defaultanswer={'3','6'};
+   defaultanswer={'3','5'};
  options.Resize='on';
    options.WindowStyle='normal';
    options.Interpreter='tex';
@@ -1237,7 +1268,7 @@ end
 prompt={'请输入力偶的大小(KN.m):','请输入力偶的作用点(m):'};%输入窗口命令行开始
    name='请输入参数';
    numlines=1;
-   defaultanswer={'3','6'};
+   defaultanswer={'3','2'};
  options.Resize='on';
    options.WindowStyle='normal';
    options.Interpreter='tex';
@@ -1307,7 +1338,7 @@ end
 prompt={'请输入分布力的大小(KN/m):','请输入分布力的作用起点(m):','请输入分布力的作用终点(m):'};%输入窗口命令行开始
    name='请输入参数';
    numlines=1;
-   defaultanswer={'3','4','5'};
+   defaultanswer={'3','3.5','5'};
  options.Resize='on';
    options.WindowStyle='normal';
    options.Interpreter='tex';
@@ -1383,7 +1414,7 @@ end
 prompt={'请输入分布力的大小(KN/m):','请输入分布力的作用起点(m):','请输入分布力的作用终点(m):'};%输入窗口命令行开始
    name='请输入参数';
    numlines=1;
-   defaultanswer={'3','4','5'};
+   defaultanswer={'3','4.5','5'};
  options.Resize='on';
    options.WindowStyle='normal';
    options.Interpreter='tex';
@@ -1536,7 +1567,7 @@ if (~((xvalue>=LOC1)&&(xvalue<=LOC2)))||(isnan(xvalue))
     return;
 else
     xvalue=roundn(xvalue,-2);
-    aa=find(abs(Mz2(2,:)-xvalue)<1e-7);
+    aa=find(abs(Mz2(2,:)-xvalue)<realmin);
     qq=strcat('挠度：',num2str(v(1,aa).*100),'mm');
     qqq=strcat('剪力:',num2str(Fsy2(1,aa)/1000),'KN');
     qqqq=strcat('弯矩:',num2str(Mz2(1,aa)/1000),'KN.m');
@@ -1568,7 +1599,7 @@ elseif xx>LOC2
     xx=LOC2;
 end
 xx=roundn(xx,-2);
-    aa=find(abs(Mz2(2,:)-xx)<1e-7);
+    aa=find(abs(Mz2(2,:)-xx)<realmin);
     qq=strcat('挠度：',num2str(v(1,aa).*100),'mm');
     qqq=strcat('剪力:',num2str(Fsy2(1,aa)/1000),'KN');
     qqqq=strcat('弯矩:',num2str(Mz2(1,aa)/1000),'KN.m');
